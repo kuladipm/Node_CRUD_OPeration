@@ -1,11 +1,23 @@
-//below we created const function express and assigned require function which includes express module as argument
+//parent application router
+
+// we need routing bcz main/parent application have multiple modules and we want keep each module  separate so that reduce complexity
+
+
+/*below we created const variable express and assigned require function which includes express module as argument and this is main module 
+or we can say that this module start code execution  */
+
 const express = require('express')
 
-//below we created const function fs and assigned require function which includes fs npm default module as argument
+//below we created const variable fs and assigned require function which includes fs npm default module as argument
 const fs = require('fs')
 
+
+// now register route(child) are available to parent application
+//require('./routes/registration.js') in require function we assigned url of route(child)
+const register=require('./routes/registration.js')
+
 //invoked express function and stored in app const variable
-/*in below line, we use 'app' as pleaceholder to receive the output from express() function, which is an object, 
+/*in below line, we use 'app' as placeholder to receive the output from express() function, which is an object, 
 we can use it in our code (by accessing his methods and properties like any other Class )
 in other words, we use the 'app' Object, which  produced from 'express()' function,
  that we imported from 'express.js' file .
@@ -13,116 +25,12 @@ NOTE 1) and of course we can give any name instead of 'app' , but it's a good pr
 when you follow what the most developers use to name this packages, 
 that make easier to understand your code specialty when you work in team.
 */
-
 const app = express()
 
-//this line is required to parse the request body
-//express.json() is a method inbuilt in express to recognize the incoming Request Object as a JSON Object.
-// This method is called as a middleware in your application using the code: app.use(express.json());
-
-app.use(express.json()) 
-/* Create - POST method */
-app.post('/user/add', (req, res) => {
-    //get the existing user data
-    const existUsers = getUserData()
-
-    //get the new user data from post request
-    const userData = req.body
-
-    //check if the userData fields are missing
-    if (userData.fullname == null || userData.age == null || userData.username == null || userData.password == null) {
-        return res.status(401).send({ error: true, msg: 'User data missing' })
-    }
-
-    //check if the username exist already
-    const findExist = existUsers.find(user => user.username === userData.username)
-    if (findExist) {
-        return res.status(409).send({ error: true, msg: 'username already exist' })
-    }
-
-    //append the user data
-    existUsers.push(userData)
-
-    //save the new user data
-    saveUserData(existUsers);
-    res.send({ success: true, msg: 'User data added successfully' })
-
-})
-//post method ended here
- 
-/* Read - GET method */
-app.get('/user/list', (req, res) => {
-    const users = getUserData()
-    res.send(users)
-})
-
-/* Update - Patch method */
-app.patch('/user/update/:username', (req, res) => {
-    //get the username from url
-    const username = req.params.username
-
-    //get the update data
-    const userData = req.body
-
-    //get the existing user data
-    const existUsers = getUserData()
-
-    //check if the username exist or not       
-    const findExist = existUsers.find(user => user.username === username)
-    if (!findExist) {
-        return res.status(409).send({ error: true, msg: 'username not exist' })
-    }
-
-    //filter the userdata
-    const updateUser = existUsers.filter(user => user.username !== username)
-
-    //push the updated data
-    updateUser.push(userData)
-
-    //finally save it
-    saveUserData(updateUser)
-
-    res.send({ success: true, msg: 'User data updated successfully !!' })
-})
-
-/* Delete - Delete method */
-app.delete('/user/delete/:username', (req, res) => {
-    const username = req.params.username
-
-    //get the existing userdata
-    const existUsers = getUserData()
-
-    //filter the userdata to remove it
-    const filterUser = existUsers.filter(user => user.username !== username)
-
-    if (existUsers.length === filterUser.length) {
-        return res.status(409).send({ error: true, msg: 'username does not exist' })
-    }
-
-    //save the filtered data
-    saveUserData(filterUser)
-
-    res.send({ success: true, msg: 'User removed successfully' })
-
-})
-
-
-/* util functions */
-
-//read the user data from json file
-const saveUserData = (data) => {
-    const stringifyData = JSON.stringify(data)
-    fs.writeFileSync('users.json', stringifyData)
-}
-
-//get the user data from json file
-const getUserData = () => {
-    const jsonData = fs.readFileSync('users.json')
-    return JSON.parse(jsonData)
-}
-
-/* util functions ends */
-
+/*After we make this registration route (child) available to the parent, we need to tell the parent application when to
+ use this route application. Lets say when a user hits the path ('/api/user/add') on registration  we need 
+the post route application of  registration rout  to handle the request and we do it by using the Express's use (url,route name) method*/
+app.use('/api',register)
 
 //configure the server port
 app.listen(3000, () => {
