@@ -1,16 +1,22 @@
 const fs = require('fs')
+const { v4: uuidv4 } = require('uuid');
 //post method controller
 const postData = (req, res) => {
     //get the existing user data
     const existUsers = getUserData()
     //get the new user data from post request
-    const userData = req.body
+    //const userData=req.body;
+    const id= uuidv4()
+    const userData = {
+        ...req.body,
+        id:uuidv4()
+    }
     //check if the userData fields are missing
-    if (userData.fullName == null || userData.contact == null || userData.email == null || userData.id == null) {
+    if (userData.fullName == null || userData.contact == null || userData.email == null) {
         return res.status(401).send({ error: true, msg: 'User data missing' })
     }
     //check if the username exist already
-    const findExist = existUsers.find(element => element.id === userData.id)
+    const findExist = existUsers.find(element => element.id === id)
     if (findExist) {
         return res.status(409).send({ error: true, msg: 'id already exist' })
     }
@@ -18,7 +24,7 @@ const postData = (req, res) => {
     existUsers.push(userData)
     //save the new user data
     saveUserData(existUsers);
-    res.send({ success: true, msg: 'User data added successfully' })
+    res.send({ success: true, msg: 'User data added successfully',id })
 }
 //GET method for all data
 const getData = (req, res) => {
@@ -29,6 +35,7 @@ const getData = (req, res) => {
 const getDataByUserName = (req, res) => {
     //get username from url
     const userId = req.params.id;
+    
     //get the existing user data
     const existUsers = getUserData()
     //check if the username exist or not       
@@ -43,7 +50,11 @@ const updateData = (req, res) => {
     //get the username from urls
     const userId = req.params.id
     //get the update data
-    const userData = req.body
+    const id= uuidv4()
+    const userData = {
+        ...req.body,
+        id:uuidv4()
+    }
     //get the existing user data
     const existUsers = getUserData()
     //check if the username exist or not       
