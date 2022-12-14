@@ -19,7 +19,6 @@ const app = express()
 the post route application of  registration rout  to handle the request and we do it by using the Express's use (url,route name) method*/
 app.use(cors())
 app.use('/api/', register)//   /api represents a REST API resource
-
 //configure the server port
 app.listen(3000, () => {
     console.log('Server runs on port 3000')

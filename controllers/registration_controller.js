@@ -1,4 +1,5 @@
 const fs = require('fs')
+const validator = require('validator');
 const { v4: uuidv4 } = require('uuid');
 //post method controller
 const postData = (req, res) => {
@@ -6,42 +7,56 @@ const postData = (req, res) => {
     const existUsers = getUserData()
     //get the new user data from post request
     //const userData=req.body;
-    const id= uuidv4()
+    const id = uuidv4()
     const userData = {
         ...req.body,
-        id:uuidv4()
+        id: uuidv4()
     }
-    //check if the userData fields are missing
-    if (userData.fullName == null || userData.contact == null || userData.email == null) {
-        return res.status(401).send({ error: true, msg: 'User data missing' })
+    if (validator.isAlpha(userData.fullName,'en-US',{ignore:' '})) {
+        if (validator.isEmail(userData.email)) {
+            if (validator.isMobilePhone(userData.contact)||validator.isLength(userData.contact,{min:10, max:10})) {
+                //check if the userData fields are missing
+                if (userData.fullName == null || userData.contact == null || userData.email == null) {
+                    return res.status(401).send({ error: true, msg: 'User data missing' })
+                }
+                //check if the username exist already
+                const findExist = existUsers.find(element => element.id === id)
+                if (findExist) {
+                    return res.status(409).send({ error: true, msg: 'id already exist' })
+                }
+                //append the user data
+                existUsers.push(userData)
+                //save the new user data
+                saveUserData(existUsers);
+                res.send({ success: true, msg: 'User data added successfully', id })
+                //GET method for all data
+            } else {
+                res.send("invalid mobile number")
+            }
+        }
+        else {
+            res.send("invalid email id")
+        }
+    } else {
+        res.send("full name is not string")
     }
-    //check if the username exist already
-    const findExist = existUsers.find(element => element.id === id)
-    if (findExist) {
-        return res.status(409).send({ error: true, msg: 'id already exist' })
-    }
-    //append the user data
-    existUsers.push(userData)
-    //save the new user data
-    saveUserData(existUsers);
-    res.send({ success: true, msg: 'User data added successfully',id })
 }
-//GET method for all data
+
 const getData = (req, res) => {
     const users = getUserData()
     res.send(users)
 }
+
 //GET method for specific username data
-const getDataByUserName = (req, res) => {
+const getDataByUserId = (req, res) => {
     //get username from url
     const userId = req.params.id;
-    
     //get the existing user data
     const existUsers = getUserData()
     //check if the username exist or not       
     const findExist = existUsers.find(element => element.id === userId)
     if (!findExist) {
-        return res.status(409).send({ error: true, msg: 'id not exist' })
+        return res.status(409).send({ error: true, msg: 'user id not exist' })
     }
     //send specific username data
     res.send(findExist);
@@ -50,10 +65,10 @@ const updateData = (req, res) => {
     //get the username from urls
     const userId = req.params.id
     //get the update data
-    const id= uuidv4()
+    const id = uuidv4()
     const userData = {
         ...req.body,
-        id:uuidv4()
+        id: uuidv4()
     }
     //get the existing user data
     const existUsers = getUserData()
@@ -61,7 +76,7 @@ const updateData = (req, res) => {
     const findExist = existUsers.find(element => element.id === userId)
     //if(!findExist) means findExist false
     if (!findExist) {
-        return res.status(409).send({ error: true, msg: 'username not exist' })
+        return res.status(409).send({ error: true, msg: 'user id not exist' })
     }
     //filter the user data
     const updateUser = existUsers.filter(element => element.id !== userId)
@@ -72,13 +87,15 @@ const updateData = (req, res) => {
     res.send({ success: true, msg: 'User data updated successfully !!' })
 }
 const deleteData = (req, res) => {
+    // const userId = req.params.email
     const userId = req.params.id
     //get the existing userdata
     const existUsers = getUserData()
     //filter the userdata to remove it
+    // const filterUser = existUsers.filter(element => element.email !== userId)
     const filterUser = existUsers.filter(element => element.id !== userId)
     if (existUsers.length === filterUser.length) {
-        return res.status(409).send({ error: true, msg: 'username does not exist' })
+        return res.status(409).send({ error: true, msg: 'user id does not exist' })
     }
     //save the filtered data
     saveUserData(filterUser)
@@ -96,4 +113,4 @@ const getUserData = () => {
 }
 /* util functions ends */
 //here we exporting controllers
-module.exports = { postData, getData, updateData, deleteData, getDataByUserName }
+module.exports = { postData, getData, updateData, deleteData, getDataByUserId }

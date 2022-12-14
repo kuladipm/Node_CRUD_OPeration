@@ -4,7 +4,7 @@ const express = require('express')
 //express.Router() it is a instance of express we call the .Router() method on the top-level Express import
 const router = express.Router()
 //here we getting controllers which is exported by registration_controller
-const { postData, getData, updateData, deleteData, getDataByUserName } = require('../controllers/registration_controller.js')
+const { postData, getData, updateData, deleteData, getDataByUserId } = require('../controllers/registration_controller.js')
 //this line is required to parse the request body
 //express.json() is a method inbuilt in express to recognize the incoming Request Object as a JSON Object.
 // This method is called as a middleware in your application using the code: router.use(express.json());
@@ -12,7 +12,7 @@ router.use(express.json())
 /* Create - POST method */
 router.post('/user', postData)
 /* Read - GET method for specific username data */
-router.get('/user/:id', getDataByUserName)
+router.get('/user/:id', getDataByUserId)
 /* Read - GET method  for all data*/
 router.get('/user', getData)
 /* Update - Patch method */
