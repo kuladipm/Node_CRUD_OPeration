@@ -1,0 +1,140 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Sample API",
+        "description": "contact management"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/api"
+        }
+    ],
+    "paths": {
+        "/user": {
+            "get": {
+                "description": "return all contact data",
+                "responses": {
+                    "200": {
+                        "description": "return all contact data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/contact"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "send entered contact data",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    " fullName": {
+                                        "type": "string"
+                                    },
+                                    "contact": {
+                                        "type": "number",
+                                        "minLength": 10,
+                                        "maxLength": 10
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "fullName",
+                                    "contact",
+                                    "email"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "data added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/contact"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "request is bad",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/badRequest"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "badRequest": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "Error": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "path": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "contact": {
+                "required": [
+                    "fullName",
+                    "contact",
+                    "email",
+                    "id"
+                ],
+                "type": "object",
+                "properties": {
+                    "fullName": {
+                        "type": "string"
+                    },
+                    "contact": {
+                        "type": "number",
+                        "minLength": 10,
+                        "maxLength": 10
+                    },
+                    "email": {
+                        "type": "string"
+                    }
+                   
+                }
+            }
+        }
+    }
+}

@@ -4,6 +4,7 @@
 or we can say that this module start code execution  */
 const express = require('express')
 const cors = require("cors");
+const OpenApiValidator = require('express-openapi-validator');
 // now register route(child) are available to parent application
 //require('./routes/registration.js') in require function we assigned url of route(child)
 const register = require('./routes/registration.js')
@@ -19,6 +20,22 @@ const app = express()
 the post route application of  registration rout  to handle the request and we do it by using the Express's use (url,route name) method*/
 app.use(cors())
 app.use('/api/', register)//   /api represents a REST API resource
+app.use(
+    OpenApiValidator.middleware({
+      apiSpec: './openApi.json',
+      validateRequests: true, // (default)
+      validateResponses: true, // false by default
+    }),
+  );
+
+  app.use((err, req, res, next) => {
+    // format error
+    res.status(err.status || 500).json({
+      message: err.message,
+      errors: err.errors,
+    });
+  });
+
 //configure the server port
 app.listen(3000, () => {
     console.log('Server runs on port 3000')
